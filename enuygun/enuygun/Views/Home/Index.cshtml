@@ -1,0 +1,110 @@
+﻿@model List<Developer>
+@{ ViewData["Title"] = "Ana Sayfa"; }
+
+<style>
+    #snackbar {
+        visibility: hidden; 
+        min-width: 250px; 
+        margin-left: -125px; 
+        background-color: #333; 
+        color: #fff; 
+        text-align: center; 
+        border-radius: 2px; 
+        padding: 16px; 
+        position: fixed;
+        z-index: 1; 
+        left: 50%; 
+        bottom: 30px; 
+    }
+
+        #snackbar.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+</style>
+
+
+<button type="button" class="btn-info mb-4" id="btnInsert" onclick="insertDb()"></button>
+<button type="button" class="btn-info mb-4" id="btnInsert2" onclick="insertDb2()"></button>
+<div id="snackbar"></div>
+<div class="container">
+
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <p style="font-size:25px;color:blue">@(Model[i].Name)</p>
+        <br />
+        <div class="row">
+            @foreach (var agenda in Model[i].Agendas)
+            {
+                <div class="col-12">
+                    <p style="font-size:15px;color:red">  @(agenda.Week). Hafta Görevleri</p>
+                    <hr />
+                </div>
+                @foreach (var task in agenda.Tasks)
+                {
+                    <div class="col-3">
+                        <ul>
+                            <li>
+                                İsim : @(task.Id)
+                                <br />
+                                Zorluk : @(task.Level)
+                                <br />
+                                Zaman : @(task.Duration)
+
+                        </ul>
+                    </div>
+                }
+            }
+        </div>
+    }
+    <div class="float-lg-right mt-4">
+        <h5>İş minimum  @Model[0].Agendas.Count() hafta'da tamamlanabilir. </h5>
+    </div>
+
+</div>
+
+@section Scripts{
+    <script>
+
+        $.get("/Home/GetIts", function (data) {
+            debugger
+            if (data.length > 0) {
+                document.getElementById("btnInsert").disabled = true;
+                document.getElementById("btnInsert").innerHTML = "Provider1 sistemde yüklü!"
+            }
+            else {
+                document.getElementById("btnInsert").disabled = false;
+                document.getElementById("btnInsert").innerHTML = "Provider1 yükle!"
+            }
+        });
+        $.get("/Home/GetBusiness", function (data) {
+            if (data.length > 0) {
+                document.getElementById("btnInsert2").disabled = true;
+                document.getElementById("btnInsert2").innerHTML = "Provider2 sistemde yüklü!"
+            }
+            else {
+                document.getElementById("btnInsert2").disabled = false;
+                document.getElementById("btnInsert2").innerHTML = "Provider2 yükle!"
+            }
+        });
+        function insertDb() {
+            $.post("/Home/InsertDbProvider1", function (response) {
+                var x = document.getElementById("snackbar");
+                x.className = "show";
+                x.innerHTML = response;
+                setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+                location.reload();
+            })
+        }
+        function insertDb2() {
+            $.post("/Home/InsertDbProvider2", function (response) {
+                var x = document.getElementById("snackbar");
+                x.className = "show";
+                x.innerHTML = response;
+                setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+                location.reload();
+            })
+        }
+    </script>
+}
